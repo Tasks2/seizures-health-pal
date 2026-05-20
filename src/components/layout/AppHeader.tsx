@@ -1,7 +1,9 @@
 import { motion } from 'framer-motion';
-import { Activity, Menu, Bell } from 'lucide-react';
+import { Activity, Menu, Bell, LogOut } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { supabase } from '@/integrations/supabase/client';
 import { NavigationMenu } from './NavigationMenu';
 
 interface AppHeaderProps {
@@ -10,6 +12,13 @@ interface AppHeaderProps {
 }
 
 export function AppHeader({ activeTab, onTabChange }: AppHeaderProps) {
+  const navigate = useNavigate();
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    navigate('/login', { replace: true });
+  };
+
   return (
     <motion.header 
       initial={{ y: -20, opacity: 0 }}
@@ -46,6 +55,9 @@ export function AppHeader({ activeTab, onTabChange }: AppHeaderProps) {
           <Button variant="ghost" size="icon" className="relative">
             <Bell className="w-5 h-5" />
             <span className="absolute top-1 right-1 w-2 h-2 bg-accent rounded-full" />
+          </Button>
+          <Button variant="ghost" size="icon" onClick={handleSignOut} aria-label="Sign out">
+            <LogOut className="w-5 h-5" />
           </Button>
 
           {/* Mobile/Tablet Navigation */}
