@@ -9,14 +9,15 @@ import { NavigationMenu } from './NavigationMenu';
 interface AppHeaderProps {
   activeTab: string;
   onTabChange: (tab: string) => void;
+  profileName?: string;
 }
 
-export function AppHeader({ activeTab, onTabChange }: AppHeaderProps) {
+export function AppHeader({ activeTab, onTabChange, profileName }: AppHeaderProps) {
   const navigate = useNavigate();
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
-    navigate('/login', { replace: true });
+    navigate('/', { replace: true });
   };
 
   return (
@@ -32,13 +33,15 @@ export function AppHeader({ activeTab, onTabChange }: AppHeaderProps) {
           </div>
           <div>
             <h1 className="font-display font-bold text-lg text-foreground">SeizureTrack</h1>
-            <p className="text-xs text-muted-foreground">Health Companion</p>
+            <p className="text-xs text-muted-foreground">
+              {profileName ? `Welcome, ${profileName}` : 'Health Companion'}
+            </p>
           </div>
         </div>
 
         {/* Desktop Navigation */}
         <nav className="hidden lg:flex items-center gap-1">
-          {['dashboard', 'seizures', 'medications', 'journal', 'appointments', 'emergency', 'reports'].map((tab) => (
+          {['dashboard', 'seizures', 'medications', 'journal', 'appointments', 'emergency', 'reports', 'profile'].map((tab) => (
             <Button
               key={tab}
               variant={activeTab === tab ? 'default' : 'ghost'}

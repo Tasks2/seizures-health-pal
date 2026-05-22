@@ -11,10 +11,11 @@ interface DashboardViewProps {
   seizures: SeizureLog[];
   medications: Medication[];
   appointments: Appointment[];
+  profileName?: string;
   onTabChange: (tab: string) => void;
 }
 
-export function DashboardView({ seizures, medications, appointments, onTabChange }: DashboardViewProps) {
+export function DashboardView({ seizures, medications, appointments, profileName, onTabChange }: DashboardViewProps) {
   const today = new Date();
   const last30Days = seizures.filter(s => 
     new Date(s.date) >= subDays(today, 30)
@@ -66,7 +67,9 @@ export function DashboardView({ seizures, medications, appointments, onTabChange
     >
       {/* Welcome Section */}
       <motion.div variants={itemVariants}>
-        <h2 className="font-display text-2xl font-bold text-foreground">Welcome Back</h2>
+        <h2 className="font-display text-2xl font-bold text-foreground">
+          Welcome Back{profileName ? `, ${profileName}` : ''}
+        </h2>
         <p className="text-muted-foreground">{format(today, 'EEEE, MMMM d, yyyy')}</p>
       </motion.div>
 

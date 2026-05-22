@@ -175,6 +175,39 @@ export type Database = {
         }
         Relationships: []
       }
+      profiles: {
+        Row: {
+          created_at: string
+          date_of_birth: string | null
+          doctor_name: string | null
+          emergency_notes: string | null
+          full_name: string | null
+          id: string
+          preferred_contact: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          date_of_birth?: string | null
+          doctor_name?: string | null
+          emergency_notes?: string | null
+          full_name?: string | null
+          id: string
+          preferred_contact?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          date_of_birth?: string | null
+          doctor_name?: string | null
+          emergency_notes?: string | null
+          full_name?: string | null
+          id?: string
+          preferred_contact?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       seizure_logs: {
         Row: {
           created_at: string

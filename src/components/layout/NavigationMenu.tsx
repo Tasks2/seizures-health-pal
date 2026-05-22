@@ -1,4 +1,4 @@
-import { LayoutDashboard, Zap, Pill, Calendar, FileText, Phone, BookOpen } from 'lucide-react';
+import { LayoutDashboard, Zap, Pill, Calendar, FileText, Phone, BookOpen, UserRound } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
@@ -15,6 +15,7 @@ const navItems = [
   { id: 'appointments', label: 'Appointments', icon: Calendar },
   { id: 'emergency', label: 'Emergency', icon: Phone },
   { id: 'reports', label: 'Reports', icon: FileText },
+  { id: 'profile', label: 'Profile', icon: UserRound },
 ];
 
 export function NavigationMenu({ activeTab, onTabChange }: NavigationMenuProps) {

@@ -63,6 +63,15 @@ export interface SymptomJournalEntry {
   notes?: string;
 }
 
+export interface Profile {
+  id: string;
+  fullName?: string;
+  dateOfBirth?: string;
+  doctorName?: string;
+  preferredContact?: string;
+  emergencyNotes?: string;
+}
+
 export type SeizureType = SeizureLog['type'];
 
 export const SEIZURE_TYPES: { value: SeizureType; label: string; description: string }[] = [

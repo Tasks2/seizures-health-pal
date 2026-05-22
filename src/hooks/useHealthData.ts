@@ -7,11 +7,13 @@ import {
   EmergencyContact,
   Medication,
   MedicationReminder,
+  Profile,
   SeizureLog,
   SymptomJournalEntry,
 } from '@/types/health';
 
 type ProfileData = {
+  profile?: Profile;
   seizures: SeizureLog[];
   medications: Medication[];
   appointments: Appointment[];
@@ -21,6 +23,7 @@ type ProfileData = {
 };
 
 const emptyProfileData: ProfileData = {
+  profile: undefined,
   seizures: [],
   medications: [],
   appointments: [],
@@ -99,6 +102,15 @@ const toSymptomEntry = (row: Tables<'symptom_journal_entries'>): SymptomJournalE
   notes: row.notes ?? undefined,
 });
 
+const toProfile = (row: Tables<'profiles'>): Profile => ({
+  id: row.id,
+  fullName: row.full_name ?? undefined,
+  dateOfBirth: row.date_of_birth ?? undefined,
+  doctorName: row.doctor_name ?? undefined,
+  preferredContact: row.preferred_contact ?? undefined,
+  emergencyNotes: row.emergency_notes ?? undefined,
+});
+
 const medicationToRow = (medication: Partial<Medication>) => ({
   name: medication.name,
   dosage: medication.dosage,
@@ -132,6 +144,14 @@ const symptomToRow = (entry: Partial<SymptomJournalEntry>) => ({
   notes: entry.notes ?? null,
 });
 
+const profileToRow = (profile: Partial<Profile>) => ({
+  full_name: profile.fullName ?? null,
+  date_of_birth: profile.dateOfBirth ?? null,
+  doctor_name: profile.doctorName ?? null,
+  preferred_contact: profile.preferredContact ?? null,
+  emergency_notes: profile.emergencyNotes ?? null,
+});
+
 export function useHealthData() {
   const [data, setData] = useState<ProfileData>(emptyProfileData);
   const [isLoaded, setIsLoaded] = useState(false);
@@ -160,6 +180,7 @@ export function useHealthData() {
         remindersResult,
         contactsResult,
         journalResult,
+        profileResult,
       ] = await Promise.all([
         supabase.from('seizure_logs').select('*').order('date', { ascending: false }).order('time', { ascending: false }),
         supabase.from('medications').select('*').order('name', { ascending: true }),
@@ -167,6 +188,7 @@ export function useHealthData() {
         supabase.from('medication_reminders').select('*').order('date', { ascending: false }),
         supabase.from('emergency_contacts').select('*').order('is_primary', { ascending: false }).order('name', { ascending: true }),
         supabase.from('symptom_journal_entries').select('*').order('date', { ascending: false }),
+        supabase.from('profiles').select('*').eq('id', uid).maybeSingle(),
       ]);
 
       const errors = [
@@ -176,11 +198,13 @@ export function useHealthData() {
         remindersResult.error,
         contactsResult.error,
         journalResult.error,
+        profileResult.error,
       ].filter(Boolean);
 
       if (errors[0]) throw errors[0];
 
       setData({
+        profile: profileResult.data ? toProfile(profileResult.data) : undefined,
         seizures: (seizuresResult.data ?? []).map(toSeizure),
         medications: (medicationsResult.data ?? []).map(toMedication),
         appointments: (appointmentsResult.data ?? []).map(toAppointment),
@@ -472,6 +496,24 @@ export function useHealthData() {
     }
   };
 
+  const updateProfile = async (updates: Partial<Profile>) => {
+    if (!userId) return;
+    try {
+      const { data: row, error } = await supabase
+        .from('profiles')
+        .upsert({ id: userId, ...profileToRow(updates) })
+        .select()
+        .single();
+      if (error) throw error;
+      const updated = toProfile(row);
+      setData(prev => ({ ...prev, profile: updated }));
+      toast({ title: 'Profile saved' });
+      return updated;
+    } catch (error) {
+      showError('Could not save profile', error);
+    }
+  };
+
   return {
     ...data,
     isLoaded,
@@ -491,5 +533,6 @@ export function useHealthData() {
     addSymptomEntry,
     updateSymptomEntry,
     deleteSymptomEntry,
+    updateProfile,
   };
 }
