@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Navigate, useNavigate } from 'react-router-dom';
+import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 import { Activity, AlertCircle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -13,8 +13,12 @@ type AuthMode = 'sign-in' | 'sign-up';
 
 export default function Login() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { isAuthenticated, isLoading } = useAuth();
-  const [mode, setMode] = useState<AuthMode>('sign-in');
+  const [mode, setMode] = useState<AuthMode>(
+    searchParams.get('mode') === 'sign-up' ? 'sign-up' : 'sign-in'
+  );
+  const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -22,7 +26,7 @@ export default function Login() {
   const [error, setError] = useState('');
 
   if (!isLoading && isAuthenticated) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/app" replace />;
   }
 
   const handleSubmit = async (event: React.FormEvent) => {
@@ -39,19 +43,24 @@ export default function Login() {
         });
 
         if (signInError) throw signInError;
-        navigate('/', { replace: true });
+        navigate('/app', { replace: true });
         return;
       }
 
       const { data, error: signUpError } = await supabase.auth.signUp({
         email: email.trim(),
         password,
+        options: {
+          data: {
+            full_name: fullName.trim() || undefined,
+          },
+        },
       });
 
       if (signUpError) throw signUpError;
 
       if (data.session) {
-        navigate('/', { replace: true });
+        navigate('/app', { replace: true });
       } else {
         setMessage('Account created. Check your email if confirmation is enabled, then sign in.');
         setMode('sign-in');
@@ -67,9 +76,9 @@ export default function Login() {
     <div className="min-h-screen bg-background flex items-center justify-center px-4 py-10">
       <div className="w-full max-w-md">
         <div className="mb-8 flex flex-col items-center text-center">
-          <div className="w-14 h-14 rounded-2xl bg-primary flex items-center justify-center mb-4">
+          <Link to="/" className="w-14 h-14 rounded-2xl bg-primary flex items-center justify-center mb-4">
             <Activity className="w-7 h-7 text-primary-foreground" />
-          </div>
+          </Link>
           <h1 className="font-display text-3xl font-bold text-foreground">SeizureTrack</h1>
           <p className="text-muted-foreground mt-2">Sign in to save and review your health records.</p>
         </div>
@@ -93,6 +102,20 @@ export default function Login() {
                 <Alert>
                   <AlertDescription>{message}</AlertDescription>
                 </Alert>
+              )}
+
+              {mode === 'sign-up' && (
+                <div className="space-y-2">
+                  <Label htmlFor="fullName">Full name</Label>
+                  <Input
+                    id="fullName"
+                    type="text"
+                    autoComplete="name"
+                    placeholder="Your name"
+                    value={fullName}
+                    onChange={(event) => setFullName(event.target.value)}
+                  />
+                </div>
               )}
 
               <div className="space-y-2">

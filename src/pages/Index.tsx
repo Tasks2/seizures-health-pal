@@ -7,6 +7,7 @@ import { AppointmentView } from '@/components/appointments/AppointmentView';
 import { ReportView } from '@/components/reports/ReportView';
 import { EmergencyContactView } from '@/components/emergency/EmergencyContactView';
 import { SymptomJournalView } from '@/components/journal/SymptomJournalView';
+import { ProfileView } from '@/components/profile/ProfileView';
 import { useHealthData } from '@/hooks/useHealthData';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -16,6 +17,7 @@ const Index = () => {
     seizures,
     medications,
     appointments,
+    profile,
     reminders,
     emergencyContacts,
     symptomJournal,
@@ -36,6 +38,7 @@ const Index = () => {
     addSymptomEntry,
     updateSymptomEntry,
     deleteSymptomEntry,
+    updateProfile,
   } = useHealthData();
 
   // Medication reminders are now initialized within MedicationView
@@ -61,6 +64,7 @@ const Index = () => {
             seizures={seizures}
             medications={medications}
             appointments={appointments}
+            profileName={profile?.fullName}
             onTabChange={setActiveTab}
           />
         );
@@ -119,6 +123,13 @@ const Index = () => {
             appointments={appointments}
           />
         );
+      case 'profile':
+        return (
+          <ProfileView
+            profile={profile}
+            onUpdate={updateProfile}
+          />
+        );
       default:
         return null;
     }
@@ -126,7 +137,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <AppHeader activeTab={activeTab} onTabChange={setActiveTab} />
+      <AppHeader activeTab={activeTab} onTabChange={setActiveTab} profileName={profile?.fullName} />
       
       <main className="container mx-auto px-4 py-6 pb-24">
         <AnimatePresence mode="wait">
